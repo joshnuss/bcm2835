@@ -1,6 +1,13 @@
-# Bcm2835
+# Ruby Bindings for [libbcm2835](http://www.open.com.au/mikem/bcm2835/)
 
-TODO: Write a gem description
+The BCM2835 is the ARM11 core used in the Raspberry PI. It exposes several harware peripherals:
+
+- GPIO (General Purpose Input/Output) 
+- SPI (Serial Peripheral Interface)
+- I2C
+- UART
+
+This library is a wrapper on top of [libbcm2835](http://www.open.com.au/mikem/bcm2835/) that provides a high level interace for accessing the ARM's hardware features
 
 ## Installation
 
