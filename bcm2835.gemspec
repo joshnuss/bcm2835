@@ -16,4 +16,5 @@ Gem::Specification.new do |gem|
   gem.version       = Bcm2835::VERSION
 
 	gem.add_dependency "ffi"
+	gem.add_development_dependency "rspec"
 end
