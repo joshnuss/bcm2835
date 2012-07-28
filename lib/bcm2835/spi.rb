@@ -1,4 +1,5 @@
 module Bcm2835
+  # Provides access to the Serial Peripheral Interface Bus
   class SPI
     # 65536 = 256us = 4kHz
     CLOCK_DIVIDER_65536 = 0
@@ -27,20 +28,40 @@ module Bcm2835
     # 16 = 50ns = 20MHz
     CLOCK_DIVIDER_16    = 16
 
-    # least signifigant bit first, e.g. 4 = 0b001
+    # Least signifigant bit first, e.g. 4 = 0b001
     LSBFIRST = 0
-    # most signifigant bit first, e.g. 4 = 0b100
+    # Most signifigant bit first, e.g. 4 = 0b100
     MSBFIRST = 1
 
-    # Chip Select 0
+    # Select Chip 0
     CHIP_SELECT_0 = 0
-    # Chip Select 1
+    # Select Chip 1
     CHIP_SELECT_1 = 1
-    # Chip Select 2 (ie pins CS1 and CS2 are asserted)
-    CHIP_SELECT_2 = 2
+    # Select both chips (ie pins CS1 and CS2 are asserted)
+    CHIP_SELECT_BOTH = 2
     # No CS, control it yourself
     CHIP_SELECT_NONE = 3
 
+    # Initializes SPI, must be called before SPI can be used
+    #
+    # @example With a block
+    #   SPI.begin do |spi| 
+    #     spi.write 1
+    #   end
+    #
+    # @example Without a block
+    #   spi = SPI.begin
+    #   spi.write 1
+    #   spi.end # must call end yourself
+    #
+    # @example Specifying the chip select line
+    #   SPI.begin(SPI::CHIP_SELECT_1) do |spi|
+    #     spi.write 1
+    #   end
+    #
+    # @yield [SPI] 
+    # @param [optional, CHIP_SELECT_*] chip defaults to CHIP_SELECT_0
+    # @return [SPI] 
     def self.begin(chip=nil)
       Native.spi_begin
       chip = CHIP_SELECT_0 if !chip && block_given?
@@ -57,23 +78,39 @@ module Bcm2835
       end
     end
 
+    # Manually shut down SPI
+    #
+    # Not needed when #begin is called with a block
     def self.end
       Native.spi_end
     end
 
-    def self.chip_select_active_low(chip_select, low)
-      Native.spi_chip_select_polarity(chip_select, low ? Native::LOW : Native::HIGH)
-    end
-
-    def initialize(chip)
-      @chip = chip
-    end
-
+    # Configure the clock prescaler
+    # 
+    # Default is CLOCK_DIVIDER_65536 (4kHz)
+    #
+    # @example Run SPI at 2MHz
+    #   spi.clock(SPI::CLOCK_DIVIDER_128)
+    #
+    # @param [CLOCK_DIVIDER_*] divider the value to prescale the clock by
     def clock(divider)
       Native.spi_clock(divider)
     end
 
-    def bit_order(order)
+    # Configure the order that bits are sent and received from the bus
+    #
+    # @example Most signifigant bit first
+    #   spi.bit_order(7..0)
+    #   # or
+    #   spi.bit_order(SPI::MSBFIRST)
+    #
+    # @example Least signifigant bit first
+    #   spi.bit_order(0..7)
+    #   # or
+    #   spi.bit_order(SPI::LSBFIRST)
+    #
+    # @param [Range|LSBFIRST|MSBFIRST] order
+    def bit_order(order=MSBFIRST)
       if order.is_a?(Range)  
         if order.begin < order.end
           order = LSBFIRST
@@ -85,6 +122,24 @@ module Bcm2835
       Native.spi_bit_order(order)
     end
 
+    # Activate a specific chip so that communication can begin
+    #
+    # When a block is provided, the chip is automatically deactivated after the block completes.
+    # When a block is not provided, the user is responsible for calling chip_select(CHIP_SELECT_NONE) 
+    #
+    # @example With block (preferred)
+    #   spi.chip_select do
+    #     spi.write(0xFF)
+    #   end
+    #
+    # @example Without block
+    #   spi.chip_select(CHIP_SELECT_0)
+    #   spi.write(0xFF)
+    #   spi.write(0x22)
+    #   spi.chip_select(CHIP_SELECT_NONE)
+    #
+    # @yield 
+    # @param [optional, CHIP_SELECT_*] chip the chip select line options
     def chip_select(chip=CHIP_SELECT_0)
       chip = @chip if @chip 
       Native.spi_chip_select(chip) 
@@ -97,6 +152,36 @@ module Bcm2835
       end
     end
 
+    # Configure the active state of the chip select line
+    #
+    # The default state for most chips is active low.
+    #
+    # "active low" means the clock line is kept high during idle, and goes low when communicating.
+    #
+    # "active high" means the clock line is kept low during idle, and goes high when communicating.
+    #
+    # @param [Boolean] active_low true for active low, false for active high 
+    # @param [optional, CHIP_SELECT_*] chip one of CHIP_SELECT_*
+    def chip_select_active_low(active_low, chip=nil)
+      chip = @chip if @chip
+      chip = CHIP_SELECT_0 unless chip
+
+      Native.spi_chip_select_polarity(chip, active_low ? Native::LOW : Native::HIGH)
+    end
+
+    # Read from the bus
+    #
+    # @example Read a single byte
+    #   byte = spi.read
+    #
+    # @example Read array of bytes
+    #   array = spi.read(3)
+    #
+    #
+    # @param [optional, Number] count the number of bytes to read. 
+    #   When count is provided, an array is returned.
+    #   When count is nil, a single byte is returned.
+    # @return [Number|Array] data that was read from the bus
     def read(count=nil)
       if count
         write([0xFF] * count)
@@ -105,6 +190,21 @@ module Bcm2835
       end
     end
 
+    # Write to the bus
+    #
+    # @example Write a single byte
+    #   spi.write(0x22)
+    #
+    # @example Write multiple bytes
+    #   spi.write(0x22, 0x33, 0x44)
+    #
+    # @example Write a string
+    #   spi.write("Hello SPI!")
+    #
+    # @example Write any enumerable
+    #   spi.write(30..40)
+    #
+    # @return [Number|Array|String] data that came out of MISO during write
     def write(*args)
       case args.count
         when 0
@@ -130,6 +230,10 @@ module Bcm2835
     end
 
   private
+    def initialize(chip)
+      @chip = chip
+    end
+
     def enable(&block)
       if @chip
         chip_select(&block)
