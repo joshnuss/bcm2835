@@ -4,11 +4,11 @@ require "bcm2835/gpio"
 
 module Bcm2835
   def init
-    raise Errno::EACCES.new unless Native.bcm2835_init == 1
+    raise Errno::EACCES.new unless Native.init == 1
   end
 
   def close
-    Native.bcm2835_close == 1
+    Native.close == 1
   end
 
   module_function :init, :close

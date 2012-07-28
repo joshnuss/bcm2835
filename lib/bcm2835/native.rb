@@ -18,11 +18,11 @@ module Bcm2835
     LOW  = 0
     HIGH = 1
     
-    attach_function :bcm2835_init, [], :int
-    attach_function :bcm2835_close, [], :int
-    attach_function :bcm2835_gpio_fsel, [:int, :int], :void
-    attach_function :bcm2835_gpio_set, [:int], :void
-    attach_function :bcm2835_gpio_clr, [:int], :void
-    attach_function :bcm2835_gpio_lev, [:int], :int
+    attach_function :init,      :bcm2835_init,      [],           :int
+    attach_function :close,     :bcm2835_close,     [],           :int
+    attach_function :gpio_fsel, :bcm2835_gpio_fsel, [:int, :int], :void
+    attach_function :gpio_set,  :bcm2835_gpio_set,  [:int],       :void
+    attach_function :gpio_clr,  :bcm2835_gpio_clr,  [:int],       :void
+    attach_function :gpio_lev,  :bcm2835_gpio_lev,  [:int],       :int
   end
 end
