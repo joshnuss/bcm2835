@@ -18,11 +18,21 @@ module Bcm2835
     LOW  = 0
     HIGH = 1
     
-    attach_function :init,      :bcm2835_init,      [],           :int
-    attach_function :close,     :bcm2835_close,     [],           :int
-    attach_function :gpio_fsel, :bcm2835_gpio_fsel, [:int, :int], :void
-    attach_function :gpio_set,  :bcm2835_gpio_set,  [:int],       :void
-    attach_function :gpio_clr,  :bcm2835_gpio_clr,  [:int],       :void
-    attach_function :gpio_lev,  :bcm2835_gpio_lev,  [:int],       :int
+    attach_function :init,          :bcm2835_init,      [], :uint8
+    attach_function :close,         :bcm2835_close,     [], :uint8
+
+    attach_function :gpio_function, :bcm2835_gpio_fsel, [:uint8, :uint8], :void
+    attach_function :gpio_set,      :bcm2835_gpio_set,  [:uint8], :void
+    attach_function :gpio_clear,    :bcm2835_gpio_clr,  [:uint8], :void
+    attach_function :gpio_level,    :bcm2835_gpio_lev,  [:uint8], :uint8
+
+    attach_function :spi_begin,       :bcm2835_spi_begin,            [], :uint8
+    attach_function :spi_end,         :bcm2835_spi_end,              [], :uint8
+    attach_function :spi_transfer,    :bcm2835_spi_transfer,       [:uint8], :uint8
+    attach_function :spi_clock,       :bcm2835_spi_setClockDivider,  [:uint8], :void
+    attach_function :spi_bit_order,   :bcm2835_spi_setBitOrder,      [:uint8], :void
+    attach_function :spi_chip_select, :bcm2835_spi_chipSelect,       [:uint8], :void
+    attach_function :spi_chip_select_polarity, 
+                    :bcm2835_spi_setChipSelectPolarity,              [:uint8, :uint8], :void
   end
 end
