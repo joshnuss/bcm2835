@@ -20,8 +20,8 @@ pin = 17
 # make pin an input
 GPIO.input(pin)
 
-# check if the input is HIGH
-puts "pressed" if GPIO[pin]
+# check if the input is HIGH i.e. true
+puts "door is closed" if GPIO[pin]
 ```
 
 ### Using Outputs
