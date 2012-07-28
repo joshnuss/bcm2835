@@ -9,6 +9,8 @@ The BCM2835 is the ARM11 core used in the Raspberry PI. It exposes several harwa
 
 This library is a wrapper on top of [libbcm2835](http://www.open.com.au/mikem/bcm2835/) that provides a high level interface for accessing the ARM's hardware features from Ruby
 
+**[View the Full Documentation on rubydoc.info](http://rubydoc.info/github/joshnuss/bcm2835/master/frames)**
+
 ## GPIO 
 
 [General Purpose Input/Output](http://en.wikipedia.org/wiki/GPIO) 
