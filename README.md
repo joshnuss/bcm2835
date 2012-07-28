@@ -43,6 +43,22 @@ end
 
 [Serial Peripheral Interface](http://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus)
 
+### Reading from the SPI bus
+```ruby
+SPI.begin do |spi| 
+  puts spi.read       # returns 1 byte
+  puts spi.read(1024) # returns an array of 1024 bytes 
+end
+```
+
+### Writing to the SPI bus
+```ruby
+SPI.begin do |spi| 
+  spi.write(0x22)           # write 1 byte
+  spi.write("hello")        # write 5 bytes
+  spi.write(0x22,0x45,0x71) # write several bytes at once 
+end
+```
 
 ## I²C
 
