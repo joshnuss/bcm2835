@@ -12,11 +12,11 @@ module Bcm2835
     end
 
     def input(pin)
-      Native.gpio_fsel(pin, Native::GPIO_FSEL_INPT)
+      Native.gpio_function(pin, Native::GPIO_FSEL_INPT)
     end
 
     def output(pin)
-      Native.gpio_fsel(pin, Native::GPIO_FSEL_OUTP)
+      Native.gpio_function(pin, Native::GPIO_FSEL_OUTP)
     end
 
     def set(pin)
@@ -24,11 +24,17 @@ module Bcm2835
     end
 
     def clear(pin)
-      Native.gpio_clr(pin)
+      Native.gpio_clear(pin)
     end
 
+    def write(pin, value)
+      value ? set(pin) : clear(pin)
+    end
+
+    alias :[]= :write
+
     def read(pin)
-      Native.gpio_lev(pin) == Native::HIGH
+      Native.gpio_level(pin) == Native::HIGH
     end
 
     alias :[] :read
@@ -37,6 +43,6 @@ module Bcm2835
       value ? set(pin) : clear(pin)
     end
 
-    module_function :direction, :input, :output, :set, :clear, :read, :[], :[]=
+    module_function :direction, :input, :output, :set, :clear, :read, :write, :[], :[]=
   end
 end

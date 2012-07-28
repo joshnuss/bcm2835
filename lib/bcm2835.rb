@@ -1,6 +1,7 @@
 require "bcm2835/version"
 require "bcm2835/native"
 require "bcm2835/gpio"
+require "bcm2835/spi"
 
 module Bcm2835
   def init
