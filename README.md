@@ -41,8 +41,9 @@ end
 ## UART
 
 You can use the Ruby Standard Library to read and write from the UART
+
+### Echo Example
 ```ruby
-# uart echo example
 File.open('/dev/ttyAMA0', 'a+') do |file|
   loop do 
     data = file.read
