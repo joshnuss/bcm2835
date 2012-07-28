@@ -2,14 +2,16 @@
 
 The BCM2835 is the ARM11 core used in the Raspberry PI. It exposes several harware peripherals:
 
-- [GPIO](http://en.wikipedia.org/wiki/GPIO) (General Purpose Input/Output) 
-- [SPI](http://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus) (Serial Peripheral Interface)
-- [I²C](http://en.wikipedia.org/wiki/I²C) (Two Wire Interface)
-- [UART](http://en.wikipedia.org/wiki/UART) (Universal Asynchronous Receiver/Transmitter)
+- [GPIO](#gpio)
+- [SPI](#spi)
+- [I²C](#i%C2%B2c)
+- [UART](#uart)
 
 This library is a wrapper on top of [libbcm2835](http://www.open.com.au/mikem/bcm2835/) that provides a high level interface for accessing the ARM's hardware features from Ruby
 
 ## GPIO 
+
+[General Purpose Input/Output](http://en.wikipedia.org/wiki/GPIO) 
 
 ### Using Inputs
 ```ruby
@@ -37,12 +39,20 @@ loop do
   sleep(1)
 end
 ```
+## SPI
+
+[Serial Peripheral Interface](http://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus)
+
 
 ## I²C
+
+[Two Wire Interface](http://en.wikipedia.org/wiki/I²C)
 
 Not yet implemented
 
 ## UART
+
+[Universal Asynchronous Receiver/Transmitter](http://en.wikipedia.org/wiki/UART) 
 
 You can use the Ruby Standard Library to read and write from the UART
 
