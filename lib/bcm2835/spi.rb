@@ -1,5 +1,5 @@
 module Bcm2835
-  module SPI
+  class SPI
     # 65536 = 256us = 4kHz
     CLOCK_DIVIDER_65536 = 0
     # 32768 = 126us = 8kHz
@@ -40,24 +40,33 @@ module Bcm2835
     CHIP_SELECT_2 = 2
     # No CS, control it yourself
     CHIP_SELECT_NONE = 3
-=begin
-+ SPI.bit_order(7..0)
-+ SPI.bit_order(0..7)
-+ SPI.begin
-+ SPI.end
-+ SPI.clock(SPI::PRESCALER_32678)
-+ SPI.write(array_or_int)
-  SPI.read(n=nil)
-+ SPI.chip_select
-+ SPI.chip_select_polarity(SPI::POLARITY_LOW)
-  SPI.mode
-=end
-    def begin
+
+    def self.begin(chip=nil)
       Native.spi_begin
+      chip = CHIP_SELECT_0 if !chip && block_given?
+      spi = new(chip)
+
+      if block_given?
+        begin
+          yield(spi)
+        ensure
+          self.end
+        end
+      else
+        spi
+      end
     end
 
-    def end
+    def self.end
       Native.spi_end
+    end
+
+    def self.chip_select_active_low(chip_select, low)
+      Native.spi_chip_select_polarity(chip_select, low ? Native::LOW : Native::HIGH)
+    end
+
+    def initialize(chip)
+      @chip = chip
     end
 
     def clock(divider)
@@ -77,18 +86,22 @@ module Bcm2835
     end
 
     def chip_select(chip=CHIP_SELECT_0)
+      chip = @chip if @chip 
       Native.spi_chip_select(chip) 
-    end
-
-    def chip_select_active_low(chip_select, low)
-      Native.spi_chip_select_polarity(chip_select, low ? Native::LOW : Native::HIGH)
+      if block_given?
+        begin
+          yield
+        ensure
+          Native.spi_chip_select(CHIP_SELECT_NONE)
+        end
+      end
     end
 
     def read(count=nil)
       if count
         write([0xFF] * count)
       else
-        Native.spi_transfer(0)
+        enable { Native.spi_transfer(0) }
       end
     end
 
@@ -102,18 +115,27 @@ module Bcm2835
           data = args
       end
 
-      case data
-      when Numeric
-        Native.spi_transfer(data)
-      when String
-        data.each_byte.map {|byte| Native.spi_transfer(byte).chr }.join 
-      when Enumerable
-        data.map {|byte| Native.spi_transfer(byte) }
-      else
-        raise ArgumentError.new("#{data.class} is not valid data. User Numeric, String or an Enumerable of numbers")
+      enable do
+        case data
+        when Numeric
+          Native.spi_transfer(data)
+        when String
+          data.each_byte.map {|byte| Native.spi_transfer(byte).chr }.join 
+        when Enumerable
+          data.map {|byte| Native.spi_transfer(byte) }
+        else
+          raise ArgumentError.new("#{data.class} is not valid data. User Numeric, String or an Enumerable of numbers")
+        end
       end
     end
 
-    module_function :begin, :end, :read, :write, :clock, :bit_order, :chip_select, :chip_select_active_low
+  private
+    def enable(&block)
+      if @chip
+        chip_select(&block)
+      else
+        yield
+      end
+    end
   end
 end
