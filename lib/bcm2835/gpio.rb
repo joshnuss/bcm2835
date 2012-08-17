@@ -78,8 +78,8 @@ module Bcm2835
     #   pin = 17
     #
     #   GPIO.output(pin)
-    #   GPIO.[pin] = true  # make pin HIGH
-    #   GPIO.[pin] = false # make pin LOW
+    #   GPIO[pin] = true  # make pin HIGH
+    #   GPIO[pin] = false # make pin LOW
     #
     # @example Using write
     #   pin = 17
