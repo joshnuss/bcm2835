@@ -98,10 +98,6 @@ Or install it yourself as:
 
     $ gem install bcm2835
 
-## Usage
-
-TODO: Write usage instructions here
-
 ## Contributing
 
 1. Fork it
